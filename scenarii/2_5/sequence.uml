@@ -1,0 +1,69 @@
+@startuml
+box "Client"
+	participant client
+	participant tcpclient
+end box
+box "Server"
+	participant tcpserver
+	participant server
+end box
+client -> tcpclient : connect
+activate client
+activate tcpclient #ADD1B2
+tcpclient -> tcpserver : SYN
+
+note left #ADD1B2
+	ESTABLISHED 
+end note
+activate tcpserver  #ADD1B2
+tcpserver -> tcpclient : SYN, ACK
+note right #ADD1B2
+	ESTABLISHED
+end note
+tcpclient -> tcpserver : ACK
+deactivate client
+tcpserver -> server : EPOLLIN
+server -> tcpserver : write
+activate server
+tcpserver -> tcpclient : PSH, ACK
+tcpclient -> client : EPOLLIN
+activate client
+client -> client : sleep(10)
+server -> server : sleep(5)
+server -> tcpserver : close
+deactivate tcpserver
+
+tcpserver -> tcpclient : FIN, ACK
+deactivate tcpclient
+activate tcpserver 	#B4A7E5
+note right 	#B4A7E5
+	FIN_WAIT2
+end note
+
+tcpclient -> tcpserver : ACK
+deactivate server
+activate tcpclient #EB937F
+note left #EB937F
+	CLOSE_WAIT
+end note
+
+tcpclient -> client : EPOLLRDHUP
+activate client
+deactivate client
+client -> tcpclient : read
+
+client -> tcpclient : close
+tcpclient ->tcpserver : FIN, ACK
+
+
+deactivate tcpserver
+tcpserver -> tcpclient : ACK
+
+deactivate tcpclient
+deactivate client
+activate tcpserver 	#FBFB77
+note right 	#FBFB77
+	TIMEWAIT
+end note
+
+@enduml

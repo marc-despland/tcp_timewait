@@ -28,8 +28,8 @@ docker build -t timewait/server --no-cache https://github.com/marc-despland/tcp_
 ./timewait_server -p \<port\> -s \<scenario\>
 '''
 
-**\<port\>**  is the port to listen
-**\<scenario\>** is the code of the scenario to run
+**\<port\>**  is the port to listen.
+**\<scenario\>** is the code of the scenario to run.
 
 * Starting the client
 

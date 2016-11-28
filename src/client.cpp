@@ -156,6 +156,9 @@ void Client::run(int scenario) {
 			this->state->readwait=10;
 			this->state->close_after_read=true;
 		break;
+		case 6:
+			this->state->close_after_connect=true;
+		break;
 	}
 
 	for (int i=0; i<2; i++) {
@@ -167,6 +170,11 @@ void Client::run(int scenario) {
 			this->add(socket);
 			this->state->connected=true;
 			std::thread * reader;
+			if (this->state->close_after_connect) {
+				this->state->connected=false;
+				Log::logger->log("CLIENT", NOTICE) << "We decide to close the socket" <<endl;
+				::close(socket);
+			}
 			while (this->state->connected) {
 				bzero(this->events, MAXEVENTS * sizeof(struct epoll_event));
 				Log::logger->log("CLIENT", DEBUG) << "Start wainting for event"<<endl;
@@ -176,17 +184,17 @@ void Client::run(int scenario) {
 					if (this->events[0].data.fd==socket) {
 						if ((this->events[0].events & EPOLLERR) || (this->events[0].events & EPOLLHUP) || (!(this->events[0].events & EPOLLIN))) {
 							if (this->events[0].events & EPOLLHUP) {
-								Log::logger->log("CLIENT", DEBUG) << "Hang up happened on the associated file descriptor." <<endl;
+								Log::logger->log("CLIENT", NOTICE) << "Hang up happened on the associated file descriptor." <<endl;
 								this->state->connected=false;
 							}
 							if (this->events[0].events & EPOLLERR) {
-								Log::logger->log("CLIENT", DEBUG) << "Socket event : EPOLLERR " <<endl;
+								Log::logger->log("CLIENT", NOTICE) << "Socket event : EPOLLERR " <<endl;
 								this->state->connected=false;
 								::close(this->events[0].data.fd);
 							}
 						} else { 
 							if (this->events[0].events & EPOLLIN) {
-								Log::logger->log("CLIENT", DEBUG) << "There is something to read socket="<< this->events[0].data.fd <<endl;
+								Log::logger->log("CLIENT", NOTICE) << "There is something to read socket="<< this->events[0].data.fd <<endl;
 								if (this->state->readwait>0) {
 									int fd=this->events[0].data.fd;
 									reader=new std::thread(Client::read, fd, this->state);

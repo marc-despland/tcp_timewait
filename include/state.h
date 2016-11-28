@@ -11,6 +11,7 @@ public:
 	bool use_shutdown;
 	bool connected;
 	bool not_closing_on_close_detected;
+	bool close_after_connect;
 protected:
 
 

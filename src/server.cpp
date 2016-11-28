@@ -169,6 +169,22 @@ void Server::run(int scenario) {
 			this->state->direct_close=true;
 			this->state->closewait=5;
 		break;
+		case 3:
+			//Keep connection open, but close it on event EPOLLRDHUP
+			this->state->send_bip=false;
+			this->state->direct_close=false;
+		break;
+		case 4:
+			//Keep connection open
+			this->state->send_bip=false;
+			this->state->direct_close=false;
+			this->state->not_closing_on_close_detected=true;			
+		break;		
+		case 5:
+			//Send a bip on close detection
+			this->state->send_bip_on_close=true;
+			this->state->not_closing_on_close_detected=true;
+		break;		
 	}
 	this->scenario=scenario;
 	this->go=true;
@@ -202,8 +218,26 @@ void Server::run(int scenario) {
 						Log::logger->log("SERVER", DEBUG) << "EPOLLWAKEUP : wakeup ?" <<endl;
 					}
 					if (this->events[i].events & EPOLLRDHUP) {
-						Log::logger->log("SERVER", DEBUG) << "Socket event : EPOLLRDHUP => close" <<endl;
-						::close(this->events[i].data.fd);
+						if (this->state->send_bip_on_close) {
+							Log::logger->log("SERVER", NOTICE) << "We send a bip before closing" <<endl;
+							milliseconds ms = duration_cast< milliseconds >(
+    							system_clock::now().time_since_epoch()
+							);
+							std::stringstream tmp;
+							tmp << "BIP:" << ms.count();
+							std::string request= tmp.str();
+							Log::logger->log("SERVER",NOTICE) << "Writing data on socket : " << this->events[i].data.fd <<endl;
+	  						int ws=write(this->events[i].data.fd, request.c_str(), request.length());
+	       					if (ws<0) {
+	            				Log::logger->log("SERVER",ERROR) << "Can't write on socket: " << this->events[i].data.fd << " error : " << errno << " " << strerror(errno)<<endl;
+	        				}
+						}
+						if (!this->state->not_closing_on_close_detected) {
+							Log::logger->log("SERVER", NOTICE) << "Socket event : EPOLLRDHUP We detect the client has close the connection so we close it on our side" <<endl;
+							::close(this->events[i].data.fd);
+						} else {
+							Log::logger->log("SERVER", NOTICE) << "Socket event : EPOLLRDHUP We detect the client has close the connection but we do nothing" <<endl;
+						}
 					} 
 				}
 			}

@@ -34,7 +34,7 @@ docker build -t timewait/server --no-cache https://github.com/marc-despland/tcp_
 * Starting the client
 
 ```
-./timewaite_client -c \<dstport\> -t \<target\> -f <fromport> -s <scenario>
+./timewaite_client -c <dstport> -t <target> -f <fromport> -s <scenario>
 ```
 
 **\<dstport\>**  is the port to to connect to on target host  

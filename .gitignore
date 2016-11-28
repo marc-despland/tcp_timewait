@@ -7,3 +7,5 @@ distributed-client
 httpd
 keepalive-clients
 node_modules
+timewait_server
+timewait_client

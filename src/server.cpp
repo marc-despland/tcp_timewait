@@ -249,4 +249,5 @@ void Server::run(int scenario) {
 
 		}
 	}
+	Log::logger->log("SERVER", NOTICE) << "Bye !!" <<endl;
 }

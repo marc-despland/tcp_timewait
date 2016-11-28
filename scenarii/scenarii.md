@@ -36,4 +36,5 @@ so we have only 28231 ports available to open a socket from an IP. If it's the c
 ## test 004 : server 5 - client 6 Sending data on socket closed by other end
 The idea is to send data on a socket after receiving the close event generate by the close socket on the other end.
 On the scenario.pcap we see that the client that initiate the close send a RST packet to force the close of the socket on the server side even we don't call the close on the application side.
+
 ![Sequence diagram](5_6/sequence.png)

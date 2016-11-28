@@ -188,6 +188,8 @@ void Server::run(int scenario) {
 	}
 	this->scenario=scenario;
 	this->go=true;
+	this->add(0);
+	Log::logger->log("SERVER", NOTICE) << "!!! Press Enter to quit !!!" <<endl;
 	if (this->listen()) {
 		while (this->go) {
 			free(this->events);
@@ -206,6 +208,9 @@ void Server::run(int scenario) {
 							if (!this->accept()) {
 								Log::logger->log("SERVER", ERROR) << "Failed to accept new connection" <<endl;
 							}
+						}
+						if (this->events[i].data.fd==0) {
+							this->go=false;
 						}
 					}
 					if (this->events[i].events & EPOLLHUP) {

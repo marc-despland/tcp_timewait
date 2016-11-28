@@ -61,3 +61,13 @@ docker run -it --name timewait_client --rm --link timewait_server:server timewai
 
 **\<scenario\>** is the code of the scenario to run  
 
+* Running the client with /bin/bash
+
+For some test it could be usefull to run the client container without starting teh test program. To allow for example to check the state of the connection after the program quit.
+For that we will just override the entrypoint command to run bash
+
+```
+docker run -it --name timewait_client --rm --link timewait_server:server --entrypoint /bin/bash timewait/client
+```
+
+

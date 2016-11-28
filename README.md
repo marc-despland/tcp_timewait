@@ -43,7 +43,7 @@ docker build -t timewait/server --no-cache https://github.com/marc-despland/tcp_
 **\<scenario\>** is the code of the scenario to run  
 
 ### With docker
-The docker images are configured to use port **666** as the listen port and port **667* as the source one. 
+The docker images are configured to use port **666** as the listen port and port **667** as the source one. 
 
 * Starting the server
 

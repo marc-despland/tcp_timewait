@@ -25,7 +25,7 @@ docker build -t timewait/server --no-cache https://github.com/marc-despland/tcp_
 * Starting the server :
 
 ```
-./timewait_server -p \<port\> -s \<scenario\>
+./timewait_server -p <port> -s <scenario>
 ```
 
 **\<port\>**  is the port to listen.  
@@ -34,7 +34,7 @@ docker build -t timewait/server --no-cache https://github.com/marc-despland/tcp_
 * Starting the client
 
 ```
-./timewaite_client -c \<dstport\> -t \<target\> -f \<fromport\> -s \<scenario\>
+./timewaite_client -c \<dstport\> -t \<target\> -f <fromport> -s <scenario>
 ```
 
 **\<dstport\>**  is the port to to connect to on target host  
@@ -48,7 +48,7 @@ The docker images are configured to use port **666** as the listen port and port
 * Starting the server
 
 ```
-docker run -it --name timewait_server --rm timewait/server \<scenario\>
+docker run -it --name timewait_server --rm timewait/server <scenario>
 ```
 
 **\<scenario\>** is the code of the scenario to run  
@@ -56,7 +56,7 @@ docker run -it --name timewait_server --rm timewait/server \<scenario\>
 * Starting the client
 
 ```
-docker run -it --name timewait_client --rm --link timewait_server:server timewait/client \<scenario\>
+docker run -it --name timewait_client --rm --link timewait_server:server timewait/client <scenario>
 ```
 
 **\<scenario\>** is the code of the scenario to run  

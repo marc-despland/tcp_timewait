@@ -111,3 +111,11 @@ Haproxy force connection close with backend with a RST packet, and keep client o
 
 ## test 013 : closeclose haproxy with Server 8 and Client 10
 Haproxy force connection close with backend with a RST packet, and close client side
+
+
+HAproxy doc https://www.haproxy.com/doc/aloha/7.0/haproxy/http_modes.html
+
+## test 014 : nginx with Server 8 and Client 10
+By default nginx transform the request to an HTTP/1.0 request and close the connection when it received the response even if the server haven't close the connection on its side
+
+So the socket is stuck in TIMEWAIT on nginx server and you can't have more than 450r/s

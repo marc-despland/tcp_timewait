@@ -211,6 +211,10 @@ void Server::run(int scenario) {
 			this->state->is_an_http_server=true;
 			this->state->http_close_after_response=true;
 		break;
+		case 8:
+			this->state->is_an_http_server=true;
+			this->state->http_keepalive=true;
+		break;
 	}
 	this->scenario=scenario;
 	this->go=true;
@@ -223,10 +227,10 @@ void Server::run(int scenario) {
 			int n = epoll_wait (this->pool, this->events, MAXEVENTS, -1);
 			Log::logger->log("SERVER", DEBUG) << "Polling result : "<<n << " sockets" <<endl;
 			for (int i = 0; i < n; i++) {
-				if ((this->events[i].events & EPOLLERR) || (this->events[i].events & EPOLLHUP) || (!(this->events[i].events & EPOLLIN))) {
-					Log::logger->log("SERVER", DEBUG) << "Socket event : EPOLLERR | EPOLLHUP | EPOLLIN => close" <<endl;
+				/*if ((this->events[i].events & EPOLLERR) || (this->events[i].events & EPOLLHUP) || (!(this->events[i].events & EPOLLIN))) {
+					Log::logger->log("SERVER", NOTICE) << "Socket event : EPOLLERR | EPOLLHUP | EPOLLIN => close" <<endl;
 					::close(this->events[i].data.fd);
-				} else {
+				} else {*/
 					if (this->events[i].events & EPOLLIN) {
 						Log::logger->log("SERVER", DEBUG) << "EPOLLIN : something to read" <<endl;
 						if (this->socketfd==this->events[i].data.fd) {
@@ -296,7 +300,7 @@ void Server::run(int scenario) {
 							Log::logger->log("SERVER", NOTICE) << "Socket event : EPOLLRDHUP We detect the client has close the connection but we do nothing" <<endl;
 						}
 					} 
-				}
+				//}
 			}
 
 		}

@@ -173,6 +173,11 @@ void Client::run(int scenario) {
 			this->state->is_an_http_client=true;
 			this->state->http_close_after_response=true;
 		break;
+		case 10:
+			this->state->nbrequest=1;
+			this->state->is_an_http_client=true;
+			this->state->http_keepalive=true;
+		break;
 	}
 
 	for (int i=0; i<this->state->nbrequest; i++) {

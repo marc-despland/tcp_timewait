@@ -266,13 +266,13 @@ void Server::run(int scenario) {
 						}
 					}
 					if (this->events[i].events & EPOLLHUP) {
-						Log::logger->log("SERVER", DEBUG) << "EPOLLHUP : ??" <<endl;
+						Log::logger->log("SERVER", NOTICE) << "EPOLLHUP : ??" <<endl;
 					}
 					if (this->events[i].events & EPOLLERR) {
-						Log::logger->log("SERVER", DEBUG) << "EPOLLERR : error" <<endl;
+						Log::logger->log("SERVER", NOTICE) << "EPOLLERR : error" <<endl;
 					}
 					if (this->events[i].events & EPOLLWAKEUP) {
-						Log::logger->log("SERVER", DEBUG) << "EPOLLWAKEUP : wakeup ?" <<endl;
+						Log::logger->log("SERVER", NOTICE) << "EPOLLWAKEUP : wakeup ?" <<endl;
 					}
 					if (this->events[i].events & EPOLLRDHUP) {
 						if (this->state->send_bip_on_close) {

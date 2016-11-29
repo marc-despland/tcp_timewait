@@ -71,3 +71,7 @@ The result is the socket is destroy on both end, no TIMEWAIT.
 
 ![Sequence diagram](1_1/sequence.png)
 
+## test 008 : default haproxy with connection:Close
+The network capture show us that the default behavior on HTTP request with Connection close is to send a RST as a client to reset the connection without TIMEWAIT, and to close it propeperly on its server side
+the FIN, ACK packet is sent with the HTPP response.
+

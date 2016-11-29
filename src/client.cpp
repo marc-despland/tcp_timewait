@@ -191,6 +191,9 @@ void Client::run(int scenario) {
 			}
 			if (this->state->is_an_http_client) {
 				std::string request= "GET / HTTP/1.1\r\nHost: "+ this->dsthost +"\r\nConnection: close\r\nAccept: */*\r\n\r\n";
+				if (this->state->http_keepalive) {
+					request= "GET / HTTP/1.1\r\nHost: "+ this->dsthost +"\r\nConnection: keep-alive\r\nAccept: */*\r\n\r\n";
+				}
 	  			int ws=write(socket, request.c_str(), request.length());
 	            if (ws<0) {
 	            	Log::logger->log("CLIENT",ERROR) << "Can't write on socket: " << socket <<endl;

@@ -71,7 +71,43 @@ The result is the socket is destroy on both end, no TIMEWAIT.
 
 ![Sequence diagram](1_1/sequence.png)
 
-## test 008 : default haproxy with connection:Close
+## test 008 : default haproxy with Server 6 and Client 8
+For this test the client and the server doesn't initiate the close of the socket, but close it if haproxy initiate it
+The request is sent with the HTTP header "Connection: Close"
+
 The network capture show us that the default behavior on HTTP request with Connection close is to send a RST as a client to reset the connection without TIMEWAIT, and to close it propeperly on its server side
 the FIN, ACK packet is sent with the HTPP response.
 
+To run the test, start in 4 terminals  
+```
+docker run -it --rm --name backend timewait/server 6
+docker run -it --rm --link backend:server --name haproxy timewait/haproxy
+docker exec -it haproxy tcpdump -s0 -w scenario_haproxy_default_6_8.pcap port 666
+docker run -it --rm --link haproxy:server timewait/client 8
+```
+
+## test 009 : default haproxy with Server 8 and Client 10
+The request is sent with the HTTP header "Connection: Keep-Alive"
+After few second, we quit the server that initiate the close of the socket on client side of haproxy
+The connection between client and haproxy stay open
+
+## test 010 : httpclose haproxy with Server 8 and Client 10
+The request is sent with the HTTP header "Connection: Keep-Alive"
+Haproxy replace this header with "Connection: close"
+But as the backend is not a real HTTP server ... it don't care and replys with Connection: keep-alive"
+And Haproxy send the answer to the client with "Connection: close".  
+Both of the socket are keep open.  
+
+When we quit the server, it send a close (FIN, ACK) to haproxy that close the socket and initiate the close with the client
+
+## test 011 : httpclose haproxy with Server 6 and Client 10
+Same as test 010 but this time server answer with a proper Connection: close
+
+Same behavior
+
+
+## test 012 : http-server-close haproxy with Server 8 and Client 10
+Haproxy force connection close with backend with a RST packet, and keep client open
+
+## test 013 : closeclose haproxy with Server 8 and Client 10
+Haproxy force connection close with backend with a RST packet, and close client side

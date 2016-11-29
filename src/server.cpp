@@ -252,7 +252,7 @@ void Server::run(int scenario) {
 		  							timeinfo = localtime (&rawtime);
 		  							strftime (buffer,80,"Date: %a, %d %b %Y %X %Z",timeinfo);
 		  							std::string response= "HTTP/1.1 200 OK\r\n"+ string(buffer) +"\r\nServer: fast\r\nContent-Type: application/json\r\nConnection: close\r\nContent-Length: 13\r\n\r\n{ 'event':0 }";
-		  							if (this->state->http_keepalive) {
+		  							if ((this->state->http_keepalive) && !(this->events[i].events & EPOLLRDHUP)) {
 		  								response= "HTTP/1.1 200 OK\r\n"+ string(buffer) +"\r\nServer: fast\r\nContent-Type: application/json\r\nConnection: keep-alive\r\nContent-Length: 13\r\n\r\n{ 'event':0 }";
 		  							}
 		  							int ws=write(this->events[i].data.fd, response.c_str(), response.length());

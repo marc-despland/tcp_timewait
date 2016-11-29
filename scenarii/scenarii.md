@@ -1,4 +1,15 @@
 
+## Test 000 : server 1 - client 0 - Server write a bip and close the connection
+
+A simple test where client establish the connection. The server then send a bip and close the connection. The client read the bip and close the socket when it detetect the close event.  
+Then the client restart the sequence using same ports, and it works even if the connection is in TIMEWAIT on server side. On client side, the socket in destroy after the close, so for the client it is not an issue to use the same port.
+
+![Sequence diagram](1_0/sequence.png)
+
+So closing the connection on server side first allow the client to reuse the port.
+
+
+
 ## test 001 : server: 3 - client:0 Keep connections open
 The idea of this scenario is to check that we can't established 2 sockets in destination of 2 differents host from the same source port.
 We start two server in two differents containers in two terminals:
@@ -38,3 +49,25 @@ The idea is to send data on a socket after receiving the close event generate by
 On the scenario.pcap we see that the client that initiate the close send a RST packet to force the close of the socket on the server side even we don't call the close on the application side.
 
 ![Sequence diagram](5_6/sequence.png)
+
+## test 005 : server 1 - client 7 The close race
+For this test, the server accept connection, send data and close, the client connect, read data and close. So both client and server try to close the conenction after doing what it has to data with the data. This generate a race with unpredicable result.
+For example if you look at the both client and server caprure for the same echange, we saw that on both end the local program send its close before receiving the other one. So both end close the socket first and both ends have the socket in TIMEWAIT.
+
+## test 006 : server 2 - client 5 Delay the close
+The server accept the connection, send a bip and wait 5s to close the connection
+The client connect to server, received the EPOLLIN event then wait 10s, read the data and close the connection
+
+It quite the same than test 001 but all to see the intermediate state of the connections
+
+![Sequence diagram](2_5/sequence.png)
+
+## test 007 : server 1 - client 1 Client delay the read
+The server accept the connection, send a bip and close the connection.
+The client connect to server, received the EPOLLIN event then wait 10s, read. When it waiting to read it detect the server has close the connection so it close it too.
+But as there are unread data for this socket, the client decide to destroy the socket with a RST packet instead of a FIN one.
+
+The result is the socket is destroy on both end, no TIMEWAIT.
+
+![Sequence diagram](1_1/sequence.png)
+

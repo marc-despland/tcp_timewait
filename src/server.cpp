@@ -151,6 +151,25 @@ int Server::accept() {
 	return 1;
 }
 
+void Server::read(int socket, StateServer * state) {
+	//if (state->readwait>0) sleep(state->readwait);
+	int readerror=0;
+	ssize_t count;
+	do {
+		char buf[512];
+		count=::read (socket,  buf, sizeof buf);
+		readerror=errno;
+		buf[count]=0;
+		if (count>0) Log::logger->log("SERVER",NOTICE) << "Reading  on socket "<<socket<< " "<<count << " bytes : " << buf<<endl;
+		Log::logger->log("SERVER",DEBUG) << "Reading  on socket "<<socket<< " "<<count << " bytes with error " << readerror<< " : " << strerror(readerror)<<endl;
+	} while ((readerror==0) && (count>0));
+	/*if (((state->shutdown_done) || (state->not_closing_on_close_detected)) && (state->close_after_read)) {
+		Log::logger->log("CLIENT",DEBUG) << "We close the socket after reading data	"<<endl;
+		state->connected=false;
+		::close(socket);
+	}*/
+}
+
 
 void Server::run(int scenario) {
 	switch (scenario) {
@@ -184,7 +203,14 @@ void Server::run(int scenario) {
 			//Send a bip on close detection
 			this->state->send_bip_on_close=true;
 			this->state->not_closing_on_close_detected=true;
-		break;		
+		break;
+		case 6:
+			this->state->is_an_http_server=true;
+		break;
+		case 7:
+			this->state->is_an_http_server=true;
+			this->state->http_close_after_response=true;
+		break;
 	}
 	this->scenario=scenario;
 	this->go=true;
@@ -208,9 +234,35 @@ void Server::run(int scenario) {
 							if (!this->accept()) {
 								Log::logger->log("SERVER", ERROR) << "Failed to accept new connection" <<endl;
 							}
-						}
-						if (this->events[i].data.fd==0) {
-							this->go=false;
+						} else {
+							if (this->events[i].data.fd==0) {
+								this->go=false;
+							} else {
+								//we have data to read
+								Server::read(this->events[i].data.fd, this->state);
+								if (this->state->is_an_http_server) {
+									time_t rawtime;
+		  							struct tm * timeinfo;
+		  							char buffer [80]; 
+		  							time (&rawtime);
+		  							timeinfo = localtime (&rawtime);
+		  							strftime (buffer,80,"Date: %a, %d %b %Y %X %Z",timeinfo);
+		  							std::string response= "HTTP/1.1 200 OK\r\n"+ string(buffer) +"\r\nServer: fast\r\nContent-Type: application/json\r\nConnection: close\r\nContent-Length: 13\r\n\r\n{ 'event':0 }";
+		  							if (this->state->http_keepalive) {
+		  								response= "HTTP/1.1 200 OK\r\n"+ string(buffer) +"\r\nServer: fast\r\nContent-Type: application/json\r\nConnection: keep-alive\r\nContent-Length: 13\r\n\r\n{ 'event':0 }";
+		  							}
+		  							int ws=write(this->events[i].data.fd, response.c_str(), response.length());
+		                			if (ws<0) {
+		                				Log::logger->log("SERVER",ERROR) << "Can't write on socket: " << this->events[i].data.fd <<endl;
+		                			}
+
+								}
+								if (this->state->http_close_after_response) {
+									Log::logger->log("SERVER", NOTICE) << "We close the socket after the response" <<endl;
+									::close(this->events[i].data.fd);
+								}
+							}
+
 						}
 					}
 					if (this->events[i].events & EPOLLHUP) {

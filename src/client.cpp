@@ -121,6 +121,7 @@ void Client::read(int socket, State * state) {
 		readerror=errno;
 		buf[count]=0;
 		if (count>0) Log::logger->log("CLIENT",NOTICE) << "Reading  on socket "<<socket<< " "<<count << " bytes : " << buf<<endl;
+		if (errno==EBADF) Log::logger->log("CLIENT",ERROR) << "Can't read, the socket has been destroy !!! "<<endl;
 		Log::logger->log("CLIENT",DEBUG) << "Reading  on socket "<<socket<< " "<<count << " bytes with error " << readerror<< " : " << strerror(readerror)<<endl;
 	} while ((readerror==0) && (count>0));
 	if (((state->shutdown_done) || (state->not_closing_on_close_detected)) && (state->close_after_read)) {
@@ -158,6 +159,10 @@ void Client::run(int scenario) {
 		break;
 		case 6:
 			this->state->close_after_connect=true;
+		break;
+		case 7:
+			this->state->not_closing_on_close_detected=true;
+			this->state->close_after_read=true;
 		break;
 	}
 

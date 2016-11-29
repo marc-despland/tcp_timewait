@@ -18,6 +18,7 @@ protected:
 	int accept();
 	int add(int socket);
 	static void close(int socketfd, StateServer * state);
+	static void read(int socket, StateServer * state);
 
 	int socketfd;
 	unsigned int port;

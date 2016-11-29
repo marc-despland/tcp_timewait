@@ -244,7 +244,7 @@ void Server::run(int scenario) {
 							} else {
 								//we have data to read
 								Server::read(this->events[i].data.fd, this->state);
-								if (this->state->is_an_http_server) {
+								if ((this->state->is_an_http_server) && (!(this->events[i].events & EPOLLRDHUP))) {
 									time_t rawtime;
 		  							struct tm * timeinfo;
 		  							char buffer [80]; 

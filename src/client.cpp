@@ -164,9 +164,18 @@ void Client::run(int scenario) {
 			this->state->not_closing_on_close_detected=true;
 			this->state->close_after_read=true;
 		break;
+		case 8:
+			this->state->nbrequest=1;
+			this->state->is_an_http_client=true;
+		break;
+		case 9:
+			this->state->nbrequest=1;
+			this->state->is_an_http_client=true;
+			this->state->http_close_after_response=true;
+		break;
 	}
 
-	for (int i=0; i<2; i++) {
+	for (int i=0; i<this->state->nbrequest; i++) {
 		if ((scenario==3) && (i==1)) sleep(15);
 		int socket=this->connect();
 		this->state->shutdown_done=false;
@@ -180,6 +189,15 @@ void Client::run(int scenario) {
 				Log::logger->log("CLIENT", NOTICE) << "We decide to close the socket" <<endl;
 				::close(socket);
 			}
+			if (this->state->is_an_http_client) {
+				std::string request= "GET / HTTP/1.1\r\nHost: "+ this->dsthost +"\r\nConnection: close\r\nAccept: */*\r\n\r\n";
+	  			int ws=write(socket, request.c_str(), request.length());
+	            if (ws<0) {
+	            	Log::logger->log("CLIENT",ERROR) << "Can't write on socket: " << socket <<endl;
+	            }
+			}
+
+
 			while (this->state->connected) {
 				bzero(this->events, MAXEVENTS * sizeof(struct epoll_event));
 				Log::logger->log("CLIENT", DEBUG) << "Start wainting for event"<<endl;
@@ -234,6 +252,7 @@ void Client::run(int scenario) {
 			Log::logger->log("CLIENT", NOTICE) << "Failed to connect socket "<<i<<  " error " << errno<< " : " << strerror(errno)<<endl;
 		}
 	}
-	Log::logger->log("CLIENT", NOTICE) << "Waiting 20s to allow threads to end"<<endl;
-	//sleep(20);
+	Log::logger->log("CLIENT", NOTICE) << "Press enter to quit"<<endl;
+	string str;
+	getline(cin, str);
 }

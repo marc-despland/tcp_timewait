@@ -13,5 +13,8 @@ fi
 if [ "$1" = 'fcl' ] ; then
 	option='fcl';
 fi
+if [ "$1" = 'pcl2' ] ; then
+	option='pcl2';
+fi
 cp /config/haproxy_$option.cfg /etc/haproxy/haproxy.cfg
 exec /usr/sbin/haproxy -f /etc/haproxy/haproxy.cfg -db

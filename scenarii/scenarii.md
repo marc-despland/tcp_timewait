@@ -119,3 +119,104 @@ HAproxy doc https://www.haproxy.com/doc/aloha/7.0/haproxy/http_modes.html
 By default nginx transform the request to an HTTP/1.0 request and close the connection when it received the response even if the server haven't close the connection on its side
 
 So the socket is stuck in TIMEWAIT on nginx server and you can't have more than 450r/s
+
+
+## Bench
+
+### Direct bench with server 9 
+
+```
+Server Software:        fast
+Server Hostname:        server
+Server Port:            666
+
+Document Path:          /
+Document Length:        13 bytes
+
+Concurrency Level:      100
+Time taken for tests:   48.101 seconds
+Complete requests:      120000
+Failed requests:        0
+Total transferred:      18480000 bytes
+HTML transferred:       1560000 bytes
+Requests per second:    2494.74 [#/sec] (mean)
+Time per request:       40.084 [ms] (mean)
+Time per request:       0.401 [ms] (mean, across all concurrent requests)
+Transfer rate:          375.19 [Kbytes/sec] received
+
+```
+
+### HaProxy PCL bench (http_close) with server 9 
+
+```
+Server Software:        fast
+Server Hostname:        server
+Server Port:            666
+
+Document Path:          /
+Document Length:        13 bytes
+
+Concurrency Level:      100
+Time taken for tests:   47.770 seconds
+Complete requests:      120000
+Failed requests:        0
+Total transferred:      18480000 bytes
+HTML transferred:       1560000 bytes
+Requests per second:    2512.03 [#/sec] (mean)
+Time per request:       39.808 [ms] (mean)
+Time per request:       0.398 [ms] (mean, across all concurrent requests)
+Transfer rate:          377.79 [Kbytes/sec] received
+```
+
+
+### Nginx bench with server 9 :
+
+```
+Server Software:        nginx/1.10.0
+Server Hostname:        server
+Server Port:            666
+
+Document Path:          /
+Document Length:        13 bytes
+
+Concurrency Level:      100
+Time taken for tests:   209.633 seconds
+Complete requests:      120000
+Failed requests:        14867
+   (Connect: 0, Receive: 0, Length: 14867, Exceptions: 0)
+Non-2xx responses:      14867
+Total transferred:      23077124 bytes
+HTML transferred:       4072523 bytes
+Requests per second:    572.43 [#/sec] (mean)
+Time per request:       174.694 [ms] (mean)
+Time per request:       1.747 [ms] (mean, across all concurrent requests)
+Transfer rate:          107.50 [Kbytes/sec] received
+
+```
+
+```
+[crit] 7#7: *239994 connect() to 172.17.0.190:666 failed (99: Cannot assign requested address) while connecting to upstream, client: 172.17.0.192, server: , request: "GET / HTTP/1.0", upstream: "http://172.17.0.190:666/", host: "server:666"
+```
+
+### HaProxy with 2 server 9
+
+```
+Server Software:        fast
+Server Hostname:        server
+Server Port:            666
+
+Document Path:          /
+Document Length:        13 bytes
+
+Concurrency Level:      100
+Time taken for tests:   23.651 seconds
+Complete requests:      120000
+Failed requests:        0
+Total transferred:      18480000 bytes
+HTML transferred:       1560000 bytes
+Requests per second:    5073.77 [#/sec] (mean)
+Time per request:       19.709 [ms] (mean)
+Time per request:       0.197 [ms] (mean, across all concurrent requests)
+Transfer rate:          763.05 [Kbytes/sec] received
+```
+

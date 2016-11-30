@@ -1,5 +1,5 @@
 #!/bin/bash
 
 git pull
-make
+make timewait_server
 exec ./timewait_server $@

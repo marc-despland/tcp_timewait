@@ -268,14 +268,9 @@ void Server::run(int scenario) {
 
 								}
 								if (this->state->http_close_after_response) {
-									if (this->state->short_close_wait>0) {
-										int socks=this->events[i].data.fd;
-										std::thread closer(Server::close, socks, this->state);
-										closer.detach();
-									} else {
-										Log::logger->log("SERVER", NOTICE) << "We close the socket after the response" <<endl;
-										::close(this->events[i].data.fd);
-									}
+									if (this->state->short_close_wait>0) ::usleep(this->state->short_close_wait);
+									Log::logger->log("SERVER", NOTICE) << "We close the socket after the response" <<endl;
+									::close(this->events[i].data.fd);
 								}
 							}
 

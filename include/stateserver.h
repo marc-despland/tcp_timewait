@@ -13,7 +13,7 @@ public:
 	bool is_an_http_server;
 	bool http_keepalive;
 	bool http_close_after_response;
-
+	int short_close_wait;
 
 };
 

@@ -215,6 +215,11 @@ void Server::run(int scenario) {
 			this->state->is_an_http_server=true;
 			this->state->http_keepalive=true;
 		break;
+		case 9:
+			this->state->is_an_http_server=true;
+			this->state->http_close_after_response=true;
+			this->state->short_close_wait=10;
+		break;
 	}
 	this->scenario=scenario;
 	this->go=true;
@@ -262,6 +267,7 @@ void Server::run(int scenario) {
 
 								}
 								if (this->state->http_close_after_response) {
+									if (this->state->short_close_wait>0) usleep(this->state->short_close_wait);
 									Log::logger->log("SERVER", NOTICE) << "We close the socket after the response" <<endl;
 									::close(this->events[i].data.fd);
 								}

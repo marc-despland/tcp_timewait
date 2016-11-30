@@ -9,5 +9,6 @@ StateServer::StateServer() {
 	this->is_an_http_server=false;
 	this->http_keepalive=false;
 	this->http_close_after_response=false;
+	this->short_close_wait=0;
 
 }

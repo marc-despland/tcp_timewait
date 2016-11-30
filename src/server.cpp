@@ -218,7 +218,7 @@ void Server::run(int scenario) {
 		case 9:
 			this->state->is_an_http_server=true;
 			this->state->http_close_after_response=true;
-			this->state->short_close_wait=10;
+			this->state->short_close_wait=100;
 		break;
 	}
 	this->scenario=scenario;

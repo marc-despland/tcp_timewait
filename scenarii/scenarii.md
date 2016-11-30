@@ -198,7 +198,7 @@ Transfer rate:          107.50 [Kbytes/sec] received
 [crit] 7#7: *239994 connect() to 172.17.0.190:666 failed (99: Cannot assign requested address) while connecting to upstream, client: 172.17.0.192, server: , request: "GET / HTTP/1.0", upstream: "http://172.17.0.190:666/", host: "server:666"
 ```
 
-### HaProxy with 2 server 9
+### HaProxy pcl with 2 server 9
 
 ```
 Server Software:        fast
@@ -219,6 +219,30 @@ Time per request:       19.709 [ms] (mean)
 Time per request:       0.197 [ms] (mean, across all concurrent requests)
 Transfer rate:          763.05 [Kbytes/sec] received
 ```
+
+### HaProxy scl with 2 server 9
+
+```
+Server Software:        fast
+Server Hostname:        server
+Server Port:            666
+
+Document Path:          /
+Document Length:        13 bytes
+
+Concurrency Level:      100
+Time taken for tests:   22.796 seconds
+Complete requests:      120000
+Failed requests:        0
+Total transferred:      18480000 bytes
+HTML transferred:       1560000 bytes
+Requests per second:    5264.14 [#/sec] (mean)
+Time per request:       18.996 [ms] (mean)
+Time per request:       0.190 [ms] (mean, across all concurrent requests)
+Transfer rate:          791.68 [Kbytes/sec] received
+
+```
+
 
 ### Nginx with 2 server 9
 
@@ -246,3 +270,4 @@ Time per request:       51.482 [ms] (mean)
 Time per request:       0.515 [ms] (mean, across all concurrent requests)
 Transfer rate:          324.37 [Kbytes/sec] received
 ```
+

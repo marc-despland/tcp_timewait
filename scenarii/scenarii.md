@@ -220,3 +220,29 @@ Time per request:       0.197 [ms] (mean, across all concurrent requests)
 Transfer rate:          763.05 [Kbytes/sec] received
 ```
 
+### Nginx with 2 server 9
+
+```
+tcp        0      0 172.17.0.222:35068      172.17.0.202:666        TIME_WAIT   timewait (52.48/0/0)
+tcp        0      0 172.17.0.222:35068      172.17.0.210:666        TIME_WAIT   timewait (52.71/0/0)
+```
+
+```
+Server Software:        nginx/1.10.0
+Server Hostname:        server
+Server Port:            666
+
+Document Path:          /
+Document Length:        13 bytes
+
+Concurrency Level:      100
+Time taken for tests:   61.779 seconds
+Complete requests:      120000
+Failed requests:        0
+Total transferred:      20520000 bytes
+HTML transferred:       1560000 bytes
+Requests per second:    1942.42 [#/sec] (mean)
+Time per request:       51.482 [ms] (mean)
+Time per request:       0.515 [ms] (mean, across all concurrent requests)
+Transfer rate:          324.37 [Kbytes/sec] received
+```

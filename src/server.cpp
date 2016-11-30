@@ -91,6 +91,7 @@ int Server::add(int socket) {
 
 void Server::close(int socketfd, StateServer * state) {
 	if (state->closewait>0) ::sleep(state->closewait);
+	if (state->short_close_wait>0) usleep(state->short_close_wait);
 	 Log::logger->log("SERVER",NOTICE) << "Send the close : " << socketfd <<endl;
 	if (::close(socketfd)<0) {
 	    Log::logger->log("SERVER",NOTICE) << "We have close the socket : " << socketfd << " error : " << errno << " " << strerror(errno)<<endl;
@@ -218,7 +219,7 @@ void Server::run(int scenario) {
 		case 9:
 			this->state->is_an_http_server=true;
 			this->state->http_close_after_response=true;
-			this->state->short_close_wait=400;
+			this->state->short_close_wait=200;
 		break;
 	}
 	this->scenario=scenario;
@@ -267,9 +268,14 @@ void Server::run(int scenario) {
 
 								}
 								if (this->state->http_close_after_response) {
-									if (this->state->short_close_wait>0) usleep(this->state->short_close_wait);
-									Log::logger->log("SERVER", NOTICE) << "We close the socket after the response" <<endl;
-									::close(this->events[i].data.fd);
+									if (this->state->short_close_wait>0) {
+										int socks=this->events[i].data.fd;
+										std::thread closer(Server::close, socks, this->state);
+										closer.detach();
+									} else {
+										Log::logger->log("SERVER", NOTICE) << "We close the socket after the response" <<endl;
+										::close(this->events[i].data.fd);
+									}
 								}
 							}
 

@@ -1,5 +1,7 @@
 FROM ubuntu
 MAINTAINER Marc Despland <marc.despland@orange.com>
+ARG http_proxy
+ARG https_proxy
 RUN apt-get update && apt-get install -y apache2 curl net-tools tcpdump openssh-client vim
 RUN mkdir -p /var/run/apache2; mkdir -p /var/lock/apache2
 WORKDIR /var/www/html

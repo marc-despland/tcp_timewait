@@ -70,4 +70,7 @@ For that we will just override the entrypoint command to run bash
 docker run -it --name timewait_client --rm --link timewait_server:server --entrypoint /bin/bash timewait/client
 ```
 
+```
+$ docker build -t timewait/server --build-arg http_proxy=http://proxy.rd.francetelecom.fr:8080 --build-arg https_proxy=http://proxy.rd.francetelecom.fr:8080 docker/server
+```
 

@@ -271,3 +271,75 @@ Time per request:       0.515 [ms] (mean, across all concurrent requests)
 Transfer rate:          324.37 [Kbytes/sec] received
 ```
 
+
+### Nginx with 2 server 7
+
+```
+Server Software:        nginx/1.10.0
+Server Hostname:        server
+Server Port:            666
+
+Document Path:          /
+Document Length:        13 bytes
+
+Concurrency Level:      100
+Time taken for tests:   21.898 seconds
+Complete requests:      120000
+Failed requests:        0
+Total transferred:      20520000 bytes
+HTML transferred:       1560000 bytes
+Requests per second:    5479.94 [#/sec] (mean)
+Time per request:       18.248 [ms] (mean)
+Time per request:       0.182 [ms] (mean, across all concurrent requests)
+Transfer rate:          915.11 [Kbytes/sec] received
+```
+
+
+ ## Nginx with 2 server 8
+
+Server Software:        nginx/1.10.0
+Server Hostname:        server
+Server Port:            666
+
+Document Path:          /
+Document Length:        13 bytes
+
+Concurrency Level:      100
+Time taken for tests:   77.090 seconds
+Complete requests:      120000
+Failed requests:        7269
+   (Connect: 0, Receive: 0, Length: 7269, Exceptions: 0)
+Non-2xx responses:      7269
+Total transferred:      21770268 bytes
+HTML transferred:       2788461 bytes
+Requests per second:    1556.62 [#/sec] (mean)
+Time per request:       64.242 [ms] (mean)
+Time per request:       0.642 [ms] (mean, across all concurrent requests)
+Transfer rate:          275.78 [Kbytes/sec] received
+
+
+Reason : we have a capbility to open 28231 * 2 before having no more available ports. This part should had take arround 10s (5500r/s)
+After that we will have to wait the end of the TIMEWAIT (60s) so arround 50S without request
+We have 7269 failed request, so at after 60s we still have to send  56269 
+
+
+
+## Haproxy SCL with 2 server 8
+
+Server Software:        fast
+Server Hostname:        server
+Server Port:            666
+
+Document Path:          /
+Document Length:        13 bytes
+
+Concurrency Level:      100
+Time taken for tests:   14.196 seconds
+Complete requests:      120000
+Failed requests:        0
+Total transferred:      18480000 bytes
+HTML transferred:       1560000 bytes
+Requests per second:    8453.24 [#/sec] (mean)
+Time per request:       11.830 [ms] (mean)
+Time per request:       0.118 [ms] (mean, across all concurrent requests)
+Transfer rate:          1271.29 [Kbytes/sec] received

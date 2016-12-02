@@ -12,14 +12,10 @@ activate client
 activate tcpclient #ADD1B2
 tcpclient -> tcpserver : SYN
 
-note left #ADD1B2
-	ESTABLISHED 
-end note
+hnote over tcpclient #ADD1B2 : ESTABLISHED 
 activate tcpserver  #ADD1B2
 tcpserver -> tcpclient : SYN, ACK
-note right #ADD1B2
-	ESTABLISHED
-end note
+hnote over tcpserver #ADD1B2 : ESTABLISHED
 tcpclient -> tcpserver : ACK
 deactivate client
 tcpserver -> server : EPOLLIN
@@ -27,23 +23,20 @@ tcpserver -> server : EPOLLIN
 deactivate tcpclient
 client -> tcpclient : close
 activate client
-activate tcpclient 	#B4A7E5
+activate tcpclient 	#FF9966
 tcpclient -> tcpserver : FIN, ACK
-note left 	#B4A7E5
-	FIN_WAIT2
-end note
+hnote over tcpclient #FF9966 : FIN_WAIT2
+
 tcpserver -> server : EPOLLRDHUP
 activate server
 server -> tcpserver : write
 tcpserver -> tcpclient : PSH, ACK
-deactivate tcpclient
 tcpclient -> tcpserver : RST
+deactivate tcpclient
 deactivate server
 deactivate client
 
 deactivate tcpserver
-activate tcpclient 	#FBFB77
-note left 	#FBFB77
-	TIMEWAIT
-end note
+hnote over tcpclient #FF6666 : CLOSE
+hnote over tcpserver #FF6666 : CLOSE
 @enduml

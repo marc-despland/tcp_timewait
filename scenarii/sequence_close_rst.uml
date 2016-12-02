@@ -47,41 +47,14 @@ tcpclient -> client : EPOLLIN
 activate client
 client -> tcpclient : read
 
-deactivate tcpclient
-client -> tcpclient : close
-activate tcpclient 	#B4A7E5
-hnote over tcpclient #B4A7E5 : FIN_WAIT1
-deactivate tcpserver
-tcpclient -> tcpserver : FIN, ACK
-activate tcpserver #FF99FF
-deactivate tcpclient
-hnote over tcpserver #FF99FF : CLOSE_WAIT
-tcpserver -> tcpclient : ACK
+client -> tcpclient : forge rst ???
 deactivate client
-activate tcpclient #FF9966
-hnote over tcpclient #FF9966 : FIN_WAIT2
-tcpserver -> server : EPOLLRDHUP
-deactivate tcpserver #FF00FF
-activate server
-server -> tcpserver : close
-hnote over tcpserver #FF00FF : LAST_ACK
-
-activate tcpserver #FF00FF
-tcpserver ->tcpclient : FIN
-
-
-
-
-deactivate tcpclient
-tcpclient -> tcpserver : ACK
-
-deactivate tcpserver
-deactivate server
-hnote over tcpserver #FF6666 : CLOSE
-activate tcpclient 	#FBFB77
-hnote over tcpclient #FBFB77: TIMEWAIT
-tcpclient --\\o tcpclient : timer 60s
-
+tcpclient -> tcpserver : RST
 deactivate tcpclient
 hnote over tcpclient #FF6666 : CLOSE
+tcpserver -> server : EPOLLRDHUP
+deactivate tcpserver
+
+
+hnote over tcpserver #FF6666 : CLOSE
 @enduml

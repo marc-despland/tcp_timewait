@@ -7,7 +7,7 @@ The computer I use to host the tests run under centos, without tcp\_reuse or tcp
 ##The different part of the tests
 
 1. [A quick description of TCP/IP and the close process](docs/tcpip.md)
-2. Simples tests to show the impacts of the chosen process
+2. [Simples tests to examin the impacts of the chosen process](scenarii/simple_tests.md)
 3. A bench test to check the impacts on performance
 4. Conclusion of the tests
 

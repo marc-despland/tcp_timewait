@@ -1,5 +1,11 @@
-
-[test 004 : Sending data on socket closed by other end](#test-004-:-Sending-data-on-socket-closed-by-other-end)
+[Test 000 : Server write a bip and close the connection](#test-000--server-write-a-bip-and-close-the-connection)   
+[Test 001 : Use the same source port twice simultaneously](#test-001--use-the-same-source-port-twice-simultaneously)   
+[Test 002 : Stopping the program could close the connection](#test-002--stopping-the-program-could-close-the-connection)   
+[Test 003 : Close initiate by client](#test-003--close-initiate-by-client)   
+[Test 004 : Sending data on socket closed by other end](#test-004--sending-data-on-socket-closed-by-other-end)
+[Test 005 : The close race](#test-005--the-close-race)   
+[Test 006 : Delay the close](#test-006--delay-the-close)   
+[Test 007 : Client delay the read](#test-007--client-delay-the-read)   
 
 
 ## Test 000 : Server write a bip and close the connection
@@ -23,7 +29,7 @@ So closing the connection on server side first allow the client to reuse the por
 
 
 
-## test 001 : Use the same source port twice simultaneously
+## Test 001 : Use the same source port twice simultaneously
 Execute the following commands in different terminals
 
 ```
@@ -62,7 +68,7 @@ tcp        0      0 172.17.0.222:35068      172.17.0.210:666        TIME_WAIT   
 ```
 
 
-## test 002 : Stopping the program could close the connection
+## Test 002 : Stopping the program could close the connection
 Execute the following commands in different terminals
 
 ```
@@ -78,7 +84,7 @@ We start server on scenario 4, client on scenario 0
 After 13s, we type Ctrl+C on client and after 25s Ctrl+C on server  
 On [scneario.pcap](4_0/scenario.pcap) file we saw that two Ctrl+C generate the apropriate FIN, ACK packet to close the connection.
 
-## test 003 : Close initiate by client
+## Test 003 : Close initiate by client
 Execute the following commands in different terminals
 
 ```
@@ -101,7 +107,7 @@ As we can see in the [scenario.pcap](3_6/scenario.pcap) file the close process i
 on Ubuntu container: ```net.ipv4.ip\_local\_port\_range = 32768	60999```
 so we have only 28231 ports available to open a socket from an IP. If it's the client that initiate the close of the sockets, we have to wait 60s to reuse the port so we are limited to 470 requests per second.
 
-## test 004 : Sending data on socket closed by other end
+## Test 004 : Sending data on socket closed by other end
 Execute the following commands in different terminals
 
 ```
@@ -117,7 +123,7 @@ On the [scenario.pcap](5_6/scenario.pcap) we see that the client that initiate t
 
 ![Sequence diagram](5_6/sequence.png)
 
-## test 005 : The close race
+## Test 005 : The close race
 Execute the following commands in different terminals
 
 ```
@@ -134,7 +140,7 @@ For example if you look at the both client and server capture for the same echan
 - [scenario_client.pcap](1_7/scenario_client.pcap)
 - [scenario_server.pcap](1_7/scenario_server.pcap)
 
-## test 006 : server 2 - client 5 Delay the close
+## Test 006 : Delay the close
 Execute the following commands in different terminals
 
 ```
@@ -152,7 +158,7 @@ It quite the same than test 001 but allaw to see the intermediate states of the 
 
 ![Sequence diagram](2_5/sequence.png)
 
-## test 007 : Client delay the read
+## Test 007 : Client delay the read
 Execute the following commands in different terminals
 
 ```

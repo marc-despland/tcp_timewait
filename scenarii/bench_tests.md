@@ -6,7 +6,7 @@ The goal of those bench tests is to demonstrate the issue that could generate a 
 ## 1 - How they close a socket ?
 
 ### 1.1 - HaProxy
-HAProxy offer several way to close a socket on its client side and on its server side. The [haproxy documentation](https://www.haproxy.com/doc/aloha/7.0/haproxy/http_modes.html) describe all those modes but we will test them to check how it close teh socket on its client side.
+HAProxy offer several ways to close a socket on its client side and on its server side. The [haproxy documentation](https://www.haproxy.com/doc/aloha/7.0/haproxy/http_modes.html) describes all those modes but we will test them to check how it close the socket on its client side.
 
 #### 1.1.1 - HaProxy mode KAL (default http-keep-alive) 
 ##### 1.1.1.1 - Client and Server don't close the connection, but send a Connection: close Hedear
@@ -27,7 +27,7 @@ docker run -it --rm --name client --link haproxy:server timewait/client 8
 
 For this test the client and the server doesn't initiate the close of the socket, but close it if haproxy initiate it. The request is sent with the HTTP header ```Connection: Close```.
 
-The [network capture](haproxy/scenario_haproxy_default_6_8.pcap) show us that the default behavior on HTTP request with ```Connection: close``` is to send a **RST** as a client to reset the connection without TIMEWAIT, and to close it propeperly on its server side. The FIN, ACK packet is sent with the HTTP response.
+The [network capture](haproxy/scenario_haproxy_default_6_8.pcap) show us that the default behavior on HTTP request with ```Connection: close``` is to send a **RST** as a client to reset the connection without TIMEWAIT, and to close it properly on its server side. The FIN, ACK packet is sent with the HTTP response.
 
 ##### 1.1.1.2 - Client and Server don't close the connection, but send a Connection: keep-alive
 Execute the following commands in different terminals
@@ -46,7 +46,7 @@ docker run -it --rm --name client --link haproxy:server timewait/client 10
 ```
 
 The request is sent with the HTTP header "Connection: Keep-Alive".  
-After few seconds, we quit the server that initiate the close of the socket on client side of haproxy.  
+After few seconds, we quit the server that initiates the close of the socket on client side of haproxy.  
 The connection between client and haproxy stay open.
 
 - [network capture](haproxy/scenario_haproxy_default_8_10.pcap)
@@ -69,7 +69,7 @@ docker run -it --rm --name client --link haproxy:server timewait/client 10
 
 The request is sent with the HTTP header ```Connection: Keep-Alive```.  
 Haproxy replace this header with ```Connection: close```.  
-But as the backend is not a real HTTP server ... it don't care and replys with ```Connection: keep-alive```, and Haproxy send the answer to the client with ```Connection: close```.  
+But as the backend is not a real HTTP server ... it don't care and replies with ```Connection: keep-alive```, and Haproxy send the answer to the client with ```Connection: close```.  
 Both of the socket are keep open.  
 
 When we quit the server, it send a close (FIN, ACK) to haproxy that close the socket and initiate the close with the client.
@@ -112,7 +112,7 @@ docker run -it --rm --link backend:server --name haproxy timewait/haproxy fcl
 docker run -it --rm --name client --link haproxy:server timewait/client 10
 ```
 
-Haproxy force connection close with backend with a RST packet, and close the conenction on client side too.
+Haproxy force connection close with backend with a RST packet, and close the connection on client side too.
 
 - [network capture](haproxy/scenario_haproxy_forceclose_8_10.pcap)
 
@@ -155,7 +155,7 @@ docker run -it --rm --link backend:server --name apache timewait/apache
 docker run -it --rm --name client --link apache:server timewait/client 10
 ```
 
-By default apache transform the ```Connection: Keep-Alive``` by the header ```Connection: close``` and close the connection when it received the response even if the server haven't close the connection on its side
+By default apache transforms the ```Connection: Keep-Alive``` by the header ```Connection: close``` and close the connection when it received the response even if the server hasn't closed the connection on its side
 
 So the socket is stuck in TIMEWAIT on apache server.
 
@@ -164,7 +164,7 @@ So the socket is stuck in TIMEWAIT on apache server.
 ## 2 - The bench tests
 
 ### 2.1 - With only one backend server 9
-So first I do a series of tests with server 9. In this configuration the server acts as an HTTP server, but wait 0.2ms before closing the connection after sending the HTTP response. When it receives a close event, it close the conenction.
+So first I do a series of tests with server 9. In this configuration the server acts as an HTTP server, but wait 0.2ms before closing the connection after sending the HTTP response. When it receives a close event, it closes the connection.
 
 This configuration, allow the other end to win the close race.
 
@@ -208,7 +208,7 @@ Time per request:       0.401 [ms] (mean, across all concurrent requests)
 Transfer rate:          375.19 [Kbytes/sec] received
 ```
 
-This test give us a reference to compare the performance with a load-balancer/revers proxy.
+This test gives us a reference to compare the performance with a load-balancer/revers proxy.
 
 #### 2.1.2 - Test with HAProxy mode PCL (http_close)
 Execute the following commands in different terminals
@@ -288,19 +288,19 @@ Transfer rate:          107.50 [Kbytes/sec] received
 
 ```
 
-Neststat show that there are too many requests in timewait, some errors occurs on Nginx console and no traffic arrive on the backend for arround 40s.
+Neststat show that there are too many requests in timewait, some errors occurs on Nginx console and no traffic arrives on the backend for around 40s.
 
 ```
 [crit] 7#7: *239994 connect() to 172.17.0.190:666 failed (99: Cannot assign requested address) while connecting to upstream, client: 172.17.0.192, server: , request: "GET / HTTP/1.0", upstream: "http://172.17.0.190:666/", host: "server:666"
 ```
 
-The following diagram illustrate how Nginx send request to the backend. As we have sent 120 000 requests, with 14867 errors (not transmiting to the backend), we have sent to the backend 105133 requests.
+The following diagram illustrates how Nginx send request to the backend. As we have sent 120 000 requests, with 14867 errors (not transmitting  to the backend), we have sent to the backend 105133 requests.
 
 ![](nginx-profile.png)
 
 ### 2.2 - With two backends server 9
 
-To look what happen if we have two backend after the load-balancer and check that we can realy use the same source port twice to connect to 2 differents servers.
+To look what happen if we have two backend after the load-balancer and check that we can really use the same source port twice to connect to 2 different servers.
 
 #### 2.2.1 - Test with HAProxy mode PCL (http_close)
 Execute the following commands in different terminals
@@ -388,7 +388,7 @@ Time per request:       0.515 [ms] (mean, across all concurrent requests)
 Transfer rate:          324.37 [Kbytes/sec] received
 ```
 
-The result is much better that we could excpected. The reason is not really simple to explain but it's probably because in this configuration the Nginx server loose teh race much often.
+The result is much better that we could expected. The reason is not really simple to explain but it's probably because in this configuration the Nginx server loose the race much often.
 
 But with a netstat we can at least confirm that we can use twice the same source port:
 
@@ -400,7 +400,7 @@ tcp        0      0 172.17.0.222:35068      172.17.0.210:666        TIME_WAIT   
 
 ### 2.3 - With two backends server 8
 
-To allow to ensure what occurs with Nginx with 2 backends, I redo the tests with server 8 (doesn't close the connection), so with this one Nginx will always win the close race. We will switch HaProxy from PCL to SCL to force it to close the connection.
+To allow ensuring what occurs with Nginx with 2 backends, I redo the tests with server 8 (doesn't close the connection), so with this one Nginx will always win the close race. We will switch HaProxy from PCL to SCL to force it to close the connection.
 
 #### 2.3.1 - Test with HAProxy mode SCL (http\_server\_close)
 Execute the following commands in different terminals
@@ -489,7 +489,7 @@ Time per request:       0.642 [ms] (mean, across all concurrent requests)
 Transfer rate:          275.78 [Kbytes/sec] received
 ```
 
-As we have 7269 failed requests, we have send to the backend 112 731 requests, that is less than 4*28231.
+As we have 7269 failed requests, we have send to the backend 112 731 requests, which is less than 4*28231.
 
 
 ![](nginx-profile-2.png)

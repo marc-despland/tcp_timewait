@@ -164,9 +164,19 @@ So the socket is stuck in TIMEWAIT on apache server.
 ## The bench tests
 
 ### With only one backend server 9
-Server 9 : Act as an HTTP server, wait 0,2 ms before closing, close on close event.
+So first I do a series of tests with server 9. In this configuration the server acts as an HTTP server, but wait 0.2ms before closing the connection after sending the HTTP response. When it receives a close event, it close the conenction.
+
+This configuration, allow the other end to win the close race.
+
+
+Solution | Requests/seconds | Test duration | Request duration 
+-------- | ---------------- | ------------- | ---------------- 
+[none](#direct-test-without-load-balancer) | 2494 | 48s | 40ms
+[HaProxy PCL](#test-with-haproxy-mode-pcl-http_close) | 2512 | 47s | 39ms 
+[Nginx](#test-with-nginx) | 572 | 209s | 174ms
 
 #### Direct test, without load-balancer.
+Execute the following commands in different terminals
 
 ```
 docker run -it --rm --name backend timewait/server 9
@@ -176,7 +186,8 @@ docker run -it --rm --name backend timewait/server 9
 docker run -it --rm --link backend:server --name ab timewait/ab
 ```
 
-The test result : 
+**The test result :** 
+
 ```
 Server Software:        fast
 Server Hostname:        server
@@ -191,8 +202,98 @@ Complete requests:      120000
 Failed requests:        0
 Total transferred:      18480000 bytes
 HTML transferred:       1560000 bytes
-Requests per second:    2494.74 [#/sec] (mean)
+**Requests per second:    2494.74 [#/sec] (mean)**
 Time per request:       40.084 [ms] (mean)
 Time per request:       0.401 [ms] (mean, across all concurrent requests)
 Transfer rate:          375.19 [Kbytes/sec] received
 ```
+
+This test give us a reference to compare the performance with a load-balancer/revers proxy.
+
+#### Test with HAProxy mode PCL (http_close)
+Execute the following commands in different terminals
+
+```
+docker run -it --rm --name backend timewait/server 9
+```
+
+```
+docker run -it --rm --link backend:server --name haproxy timewait/haproxy pcl
+```
+
+```
+docker run -it --rm --link haproxy:server --name ab timewait/ab
+```
+
+**The test result:**
+
+
+```
+Server Software:        fast
+Server Hostname:        server
+Server Port:            666
+
+Document Path:          /
+Document Length:        13 bytes
+
+Concurrency Level:      100
+Time taken for tests:   47.770 seconds
+Complete requests:      120000
+Failed requests:        0
+Total transferred:      18480000 bytes
+HTML transferred:       1560000 bytes
+**Requests per second:    2512.03 [#/sec] (mean)**
+Time per request:       39.808 [ms] (mean)
+Time per request:       0.398 [ms] (mean, across all concurrent requests)
+Transfer rate:          377.79 [Kbytes/sec] received
+```
+
+#### Test with NGinx
+Execute the following commands in different terminals
+
+```
+docker run -it --rm --name backend timewait/server 9
+```
+
+```
+docker run -it --rm --link backend:server --name nginx timewait/nginx 1
+```
+
+```
+docker run -it --rm --link nginx:server --name ab timewait/ab
+```
+
+**The test result:**
+
+```
+Server Software:        nginx/1.10.0
+Server Hostname:        server
+Server Port:            666
+
+Document Path:          /
+Document Length:        13 bytes
+
+Concurrency Level:      100
+Time taken for tests:   209.633 seconds
+Complete requests:      120000
+Failed requests:        14867
+   (Connect: 0, Receive: 0, Length: 14867, Exceptions: 0)
+Non-2xx responses:      14867
+Total transferred:      23077124 bytes
+HTML transferred:       4072523 bytes
+**Requests per second:    572.43 [#/sec] (mean)**
+Time per request:       174.694 [ms] (mean)
+Time per request:       1.747 [ms] (mean, across all concurrent requests)
+Transfer rate:          107.50 [Kbytes/sec] received
+
+```
+
+Neststat show that there are too many requests in timewait, some errors occurs on Nginx console and no traffic arrive on the backend for arround 40s.
+
+```
+[crit] 7#7: *239994 connect() to 172.17.0.190:666 failed (99: Cannot assign requested address) while connecting to upstream, client: 172.17.0.192, server: , request: "GET / HTTP/1.0", upstream: "http://172.17.0.190:666/", host: "server:666"
+```
+
+The following diagram illustrate how Nginx send request to the backend. As we have sent 120 000 requests, with 14867 errors (not transmiting to the backend), we have sent to the backend 105133 requests.
+
+![](nginx-profile.png)

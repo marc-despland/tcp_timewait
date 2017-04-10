@@ -9,3 +9,5 @@ keepalive-clients
 node_modules
 timewait_server
 timewait_client
+server_delay
+client_delay

@@ -5,7 +5,7 @@ CPPFLAGS       = -g -Wall -Iinclude  -std=c++11
 OLDFLAGS	= -std=c++11
 CFLAGS       = $(CPPFLAGS) 
 LDLIBS		 = -lutil -pthread
-TARGET  = timewait_server timewait_client
+TARGET  = timewait_server timewait_client server_delay client_delay
 SOURCES = $(shell echo src/*.cpp)
 HEADERS = $(shell echo include/*.h)
 OBJECTS = $(SOURCES:.cpp=.o)
